@@ -4,9 +4,16 @@ import ProductGrid from "@/components/organisms/ProductGrid";
 import SearchBar from "@/components/molecules/SearchBar";
 import FilterDropdown from "@/components/molecules/FilterDropDown";
 import ProductCardSkeleton from "@/components/molecules/ProductCardSkeleton";
+import Pagination from "@/components/molecules/Pagination";
+
+const PRODUCTS_PER_PAGE = 12;
 
 function Dashboard() {
-  const { data, isLoading, error } = useGetProductsQuery();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, error } = useGetProductsQuery({
+    limit: PRODUCTS_PER_PAGE,
+    skip: (page - 1) * PRODUCTS_PER_PAGE,
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
@@ -23,8 +30,10 @@ function Dashboard() {
     return matchesSearch && matchesCategory;
   });
 
+  const totalPages = data ? Math.ceil(data.total / PRODUCTS_PER_PAGE) : 1;
+
   return (
-    <div className="p-6">
+    <div>
       <h1 className="text-xl font-semibold mb-4">Dashboard</h1>
       <div className="flex flex-col sm:flex-row gap-3">
         <SearchBar value={searchTerm} onChange={setSearchTerm} />
@@ -38,7 +47,7 @@ function Dashboard() {
       <div className="mt-4">
         {isLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length: PRODUCTS_PER_PAGE }).map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))}
           </div>
@@ -60,6 +69,14 @@ function Dashboard() {
           <ProductGrid products={filteredProducts} />
         )}
       </div>
+
+      {!isLoading && !error && (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
+      )}
     </div>
   );
 }
