@@ -8,17 +8,27 @@ import { useGetProductsQuery } from "@/services/productApi";
 import { clearCart } from "@/app/cartSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import ErrorMessage from "@/components/atoms/ErrorMessage";
 
 function Checkout() {
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { data, isLoading, error } = useGetProductsQuery({ limit: 194, skip: 0 });
+  const { data, isLoading, error } = useGetProductsQuery({
+    limit: 194,
+    skip: 0,
+  });
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [street, setStreet] = useState("");
+  const [phoneWarning, setPhoneWarning] = useState("");
   const [locality, setLocality] = useState("");
   const [region, setRegion] = useState("");
   const [city, setCity] = useState("");
@@ -37,13 +47,26 @@ function Checkout() {
     })
     .filter((item) => item !== null);
 
-  const totalItems = cartWithDetails.reduce((sum, item) => sum + item.quantity, 0);
+  const totalItems = cartWithDetails.reduce(
+    (sum, item) => sum + item.quantity,
+    0,
+  );
   const subtotal = cartWithDetails.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
-    0
+    0,
   );
   const deliveryFee = subtotal > 0 ? 2.99 : 0;
   const total = subtotal + deliveryFee;
+
+  const handlePhoneChange = (rawValue: string) => {
+    const digitsOnly = rawValue.replace(/\D/g, "");
+    setPhone(digitsOnly.slice(0, 10));
+    if (/\D/.test(rawValue)) {
+      setPhoneWarning("Phone number can only contain digits.");
+    } else {
+      setPhoneWarning("");
+    }
+  };
 
   const handlePlaceOrder = () => {
     dispatch(clearCart());
@@ -78,23 +101,46 @@ function Checkout() {
               onChange={(e) => setFullName(e.target.value)}
             />
           </div>
+
           <div>
-            <label className="text-xs text-muted-foreground">Region</label>
-            <Input
-              placeholder="Please choose your region"
+            <label className="text-xs text-muted-foreground">Province</label>
+            <Select
               value={region}
-              onChange={(e) => setRegion(e.target.value)}
-            />
+              onValueChange={(value) => setRegion(value ?? "")}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Please choose your province" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="province-1">Province 1</SelectItem>
+                <SelectItem value="province-2">Province 2</SelectItem>
+                <SelectItem value="province-3">Province 3 (Bagmati)</SelectItem>
+                <SelectItem value="province-4">Province 4 (Gandaki)</SelectItem>
+                <SelectItem value="province-5">Province 5 (Lumbini)</SelectItem>
+                <SelectItem value="province-6">Province 6 (Karnali)</SelectItem>
+                <SelectItem value="province-7">
+                  Province 7 (Sudurpashchim)
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
             <label className="text-xs text-muted-foreground">Phone number</label>
             <Input
+              type="tel"
+              inputMode="numeric"
+              maxLength={10}
               placeholder="Please enter your phone number"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => handlePhoneChange(e.target.value)}
+              className={phoneWarning ? "border-destructive" : ""}
             />
+            {phoneWarning && (
+              <p className="text-xs text-destructive mt-1">{phoneWarning}</p>
+            )}
           </div>
+
           <div>
             <label className="text-xs text-muted-foreground">City</label>
             <Input
@@ -104,16 +150,6 @@ function Checkout() {
             />
           </div>
 
-          <div>
-            <label className="text-xs text-muted-foreground">
-              Building / House No / Floor / Street
-            </label>
-            <Input
-              placeholder="Please enter"
-              value={street}
-              onChange={(e) => setStreet(e.target.value)}
-            />
-          </div>
           <div>
             <label className="text-xs text-muted-foreground">Area</label>
             <Input
@@ -125,15 +161,16 @@ function Checkout() {
 
           <div>
             <label className="text-xs text-muted-foreground">
-              Colony / Suburb / Locality / Landmark
+              Locality / Landmark
             </label>
             <Input
-              placeholder="Please enter"
+              placeholder="Please enter any landmarks near you."
               value={locality}
               onChange={(e) => setLocality(e.target.value)}
             />
           </div>
-          <div>
+
+          <div className="sm:col-span-2">
             <label className="text-xs text-muted-foreground">Address</label>
             <Input
               placeholder="e.g. House# 123, Street# 123, ABC Road"
@@ -192,13 +229,24 @@ function Checkout() {
             </label>
           </div>
         </div>
+
+        <Button
+          className="w-full rounded-full mt-6"
+          size="lg"
+          disabled={!!phoneWarning}
+          onClick={handlePlaceOrder}
+        >
+          <Package className="mr-2" size={18} /> Place dummy order
+        </Button>
       </div>
 
       <div className="border rounded-xl p-5 h-fit space-y-3">
         <h2 className="font-semibold">Order Detail</h2>
 
         <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Items Total ({totalItems} items)</span>
+          <span className="text-muted-foreground">
+            Items Total ({totalItems} items)
+          </span>
           <span>${subtotal.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm">
@@ -208,12 +256,10 @@ function Checkout() {
 
         <div className="border-t pt-3 flex justify-between items-center">
           <span className="font-semibold">Total</span>
-          <span className="text-xl font-bold text-primary">${total.toFixed(2)}</span>
+          <span className="text-xl font-bold text-primary">
+            ${total.toFixed(2)}
+          </span>
         </div>
-
-        <Button className="w-full rounded-full" size="lg" onClick={handlePlaceOrder}>
-          Proceed to Pay
-        </Button>
       </div>
     </div>
   );
