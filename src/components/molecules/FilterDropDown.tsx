@@ -20,17 +20,17 @@ function FilterDropdown({ categories, value, onChange }: FilterDropdownProps) {
         if (nextValue) onChange(nextValue);
       }}
     >
-      <SelectTrigger className="w-48">
+      <SelectTrigger className="w-48 capitalize">
         <SelectValue placeholder="All categories" />
       </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">All categories</SelectItem>
-        {categories.map((category) => (
-          <SelectItem key={category} value={category}>
-            {category}
-          </SelectItem>
-        ))}
-      </SelectContent>
+      <SelectContent className="capitalize">
+  <SelectItem value="all">All categories</SelectItem>
+  {categories.map((category) => (
+    <SelectItem key={category} value={category}>
+      {category}
+    </SelectItem>
+  ))}
+</SelectContent>
     </Select>
   );
 }

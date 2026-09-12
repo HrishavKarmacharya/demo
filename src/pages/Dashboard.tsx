@@ -5,6 +5,7 @@ import SearchBar from "@/components/molecules/SearchBar";
 import FilterDropdown from "@/components/molecules/FilterDropDown";
 import ProductCardSkeleton from "@/components/molecules/ProductCardSkeleton";
 import Pagination from "@/components/molecules/Pagination";
+import ErrorMessage from "@/components/atoms/ErrorMessage";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -54,9 +55,7 @@ function Dashboard() {
         )}
 
         {error && (
-          <p className="text-destructive">
-            Something went wrong while fetching products. Please try again.
-          </p>
+          <ErrorMessage message="Something went wrong while fetching products." />
         )}
 
         {!isLoading && !error && filteredProducts?.length === 0 && (

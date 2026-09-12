@@ -1,8 +1,9 @@
 import { Link } from "react-router";
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart, Moon, Sun } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
+import useDarkMode from "@/hooks/useDarkMode";
 
 function Navbar() {
   const wishlistCount = useSelector(
@@ -11,6 +12,7 @@ function Navbar() {
   const cartCount = useSelector((state: RootState) =>
     state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
   );
+  const { isDark, toggle } = useDarkMode();
 
   return (
     <header className="border-b bg-background">
@@ -20,6 +22,10 @@ function Navbar() {
         </Link>
 
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="icon" onClick={toggle}>
+            {isDark ? <Sun /> : <Moon />}
+          </Button>
+
           <Link to="/wishlist">
             <Button variant="outline" size="icon" className="relative">
               <Heart />
