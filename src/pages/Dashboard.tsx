@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useGetProductsQuery } from "@/services/productApi";
 import ProductGrid from "@/components/organisms/ProductGrid";
+import ProductList from "@/components/organisms/ProductList";
 import SearchBar from "@/components/molecules/SearchBar";
 import FilterDropdown from "@/components/molecules/FilterDropDown";
+import ViewToggle, { type ViewMode } from "@/components/molecules/ViewToggle";
 import ProductCardSkeleton from "@/components/molecules/ProductCardSkeleton";
 import Pagination from "@/components/molecules/Pagination";
 import ErrorMessage from "@/components/atoms/ErrorMessage";
@@ -17,6 +19,7 @@ function Dashboard() {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [view, setView] = useState<ViewMode>("grid");
 
   const categories = data
     ? Array.from(new Set(data.products.map((product) => product.category)))
@@ -36,13 +39,16 @@ function Dashboard() {
   return (
     <div>
       <h1 className="text-xl font-semibold mb-4">Dashboard</h1>
-      <div className="flex flex-col sm:flex-row gap-3">
-        <SearchBar value={searchTerm} onChange={setSearchTerm} />
-        <FilterDropdown
-          categories={categories}
-          value={selectedCategory}
-          onChange={setSelectedCategory}
-        />
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 flex-1">
+          <SearchBar value={searchTerm} onChange={setSearchTerm} />
+          <FilterDropdown
+            categories={categories}
+            value={selectedCategory}
+            onChange={setSelectedCategory}
+          />
+        </div>
+        <ViewToggle value={view} onChange={setView} />
       </div>
 
       <div className="mt-4">
@@ -64,9 +70,15 @@ function Dashboard() {
           </p>
         )}
 
-        {!isLoading && !error && filteredProducts && filteredProducts.length > 0 && (
-          <ProductGrid products={filteredProducts} />
-        )}
+        {!isLoading &&
+          !error &&
+          filteredProducts &&
+          filteredProducts.length > 0 &&
+          (view === "grid" ? (
+            <ProductGrid products={filteredProducts} />
+          ) : (
+            <ProductList products={filteredProducts} />
+          ))}
       </div>
 
       {!isLoading && !error && (
