@@ -10,6 +10,7 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/app/store";
 import { toggleWishlist } from "@/app/wishlistSlice";
 import { addToCart, increaseQuantity, decreaseQuantity } from "@/app/cartSlice";
+import { calculateOriginalPrice } from "@/utils/pricing";
 
 interface ProductCardProps {
   product: Product;
@@ -24,10 +25,8 @@ function ProductCard({ product }: ProductCardProps) {
     state.cart.items.find((item) => item.productId === product.id)
   );
 
-  const hasDiscount = product.discountPercentage > 1;
-  const originalPrice = hasDiscount
-    ? product.price / (1 - product.discountPercentage / 100)
-    : null;
+const originalPrice = calculateOriginalPrice(product.price, product.discountPercentage);
+const hasDiscount = originalPrice !== null;
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -39,7 +38,7 @@ function ProductCard({ product }: ProductCardProps) {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    dispatch(addToCart(product.id));
+    dispatch(addToCart({ productId: product.id, stock: product.stock }))
     toast("Added to cart", { description: product.title });
   };
 
@@ -130,7 +129,7 @@ function ProductCard({ product }: ProductCardProps) {
                 className="h-7 w-7 rounded-full"
                 onClick={(e) => {
                   e.preventDefault();
-                  dispatch(increaseQuantity(product.id));
+                  dispatch(increaseQuantity({ productId: product.id, stock: product.stock }))
                 }}
               >
                 <Plus size={14} />

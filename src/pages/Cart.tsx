@@ -154,7 +154,7 @@ function Cart() {
                         variant="ghost"
                         size="icon"
                         className="h-6 w-6 rounded-full"
-                        onClick={() => dispatch(increaseQuantity(item.productId))}
+                        onClick={() => dispatch(increaseQuantity({ productId: item.productId, stock: item.product.stock }))}
                       >
                         <Plus size={12} />
                       </Button>

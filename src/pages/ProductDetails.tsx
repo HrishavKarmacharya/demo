@@ -14,6 +14,7 @@ import StarRating from "@/components/atoms/StarRating";
 import ErrorMessage from "@/components/atoms/ErrorMessage";
 import Badge from "@/components/atoms/Badge";
 import ProductGrid from "@/components/organisms/ProductGrid";
+import { calculateOriginalPrice } from "@/utils/pricing";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -41,17 +42,15 @@ function ProductDetails() {
     return <ErrorMessage message="Something went wrong while fetching this product." />;
   if (!product) return <p>Product not found.</p>;
 
-  const hasDiscount = product.discountPercentage > 1;
-  const originalPrice = hasDiscount
-    ? product.price / (1 - product.discountPercentage / 100)
-    : null;
+  const originalPrice = calculateOriginalPrice(product.price, product.discountPercentage);
+  const hasDiscount = originalPrice !== null;
 
   const similarProducts = similarData?.products
     .filter((p) => p.id !== product.id)
     .slice(0, 4);
 
   const handleAddToCart = () => {
-    dispatch(addToCart(product.id));
+    dispatch(addToCart({ productId: product.id, stock: product.stock }));
     toast("Added to cart", { description: product.title });
   };
 
@@ -131,6 +130,7 @@ function ProductDetails() {
                   variant="outline"
                   size="icon"
                   className="rounded-full"
+                  aria-label="Decrease quantity"
                   onClick={() => dispatch(decreaseQuantity(product.id))}
                 >
                   <Minus size={16} />
@@ -142,7 +142,13 @@ function ProductDetails() {
                   variant="outline"
                   size="icon"
                   className="rounded-full"
-                  onClick={() => dispatch(increaseQuantity(product.id))}
+                  aria-label="Increase quantity"
+                  disabled={cartItem.quantity >= product.stock}
+                  onClick={() =>
+                    dispatch(
+                      increaseQuantity({ productId: product.id, stock: product.stock })
+                    )
+                  }
                 >
                   <Plus size={16} />
                 </Button>

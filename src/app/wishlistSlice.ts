@@ -4,8 +4,21 @@ interface WishlistState {
   productIds: number[];
 }
 
+function loadWishlistFromStorage(): number[] {
+  try {
+    const saved = localStorage.getItem("wishlist");
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveWishlistToStorage(productIds: number[]) {
+  localStorage.setItem("wishlist", JSON.stringify(productIds));
+}
+
 const initialState: WishlistState = {
-  productIds: [],
+  productIds: loadWishlistFromStorage(),
 };
 
 const wishlistSlice = createSlice({
@@ -19,6 +32,7 @@ const wishlistSlice = createSlice({
       } else {
         state.productIds.push(id);
       }
+      saveWishlistToStorage(state.productIds);
     },
   },
 });

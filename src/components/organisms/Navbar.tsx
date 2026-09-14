@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Heart, ShoppingCart, Moon, Sun } from "lucide-react";
+import { Heart, ShoppingCart, Moon, Sun, Shield } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
@@ -22,12 +22,28 @@ function Navbar() {
         </Link>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={toggle}>
+          <Link to="/admin">
+            <Button variant="outline" size="icon" aria-label="Admin panel">
+              <Shield />
+            </Button>
+          </Link>
+
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Toggle dark mode"
+            onClick={toggle}
+          >
             {isDark ? <Sun /> : <Moon />}
           </Button>
 
           <Link to="/wishlist">
-            <Button variant="outline" size="icon" className="relative">
+            <Button
+              variant="outline"
+              size="icon"
+              className="relative"
+              aria-label="Wishlist"
+            >
               <Heart />
               {wishlistCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
@@ -38,7 +54,12 @@ function Navbar() {
           </Link>
 
           <Link to="/cart">
-            <Button variant="outline" size="icon" className="relative">
+            <Button
+              variant="outline"
+              size="icon"
+              className="relative"
+              aria-label="Cart"
+            >
               <ShoppingCart />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">

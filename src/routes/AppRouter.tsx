@@ -6,6 +6,7 @@ import Cart from "@/pages/Cart";
 import NotFound from "@/pages/NotFound";
 import DashboardLayout from "@/components/templates/DashboardLayout";
 import Checkout from "@/pages/Checkout";
+import Admin from "@/pages/Admin";
 
 function AppRouter() {
   return (
@@ -18,6 +19,7 @@ function AppRouter() {
           <Route path="/cart" element={<Cart />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </DashboardLayout>
     </BrowserRouter>
